@@ -2,8 +2,8 @@ import Accordion from "react-bootstrap/Accordion"
 import CheckListStep from "./CheckListStep"
 import { Icons } from "../../icons"
 import AddItemModal from "./AddItemModal"
-import { useState } from "react"
-import { Check } from "../../types"
+import { useEffect, useState } from "react"
+import type { Step } from "../../types"
 
 const data = {
   checkList: [
@@ -13,7 +13,7 @@ const data = {
       steps: [
         {
           id: 1,
-          title: "Check item 1",
+          title: "Step item 1",
           description: "Not started",
           status: "idle",
         },
@@ -27,7 +27,7 @@ const data = {
 
         {
           id: 3,
-          title: "Check item 3",
+          title: "Step item 3",
           description: "Final installation done",
           status: "completed",
         },
@@ -47,6 +47,8 @@ function Checklist() {
   const [showModal, setShowModal] = useState(false)
   const currentCheckListId = 1
 
+  const [step, setStep] = useState<Step>()
+
   const currentItem = data.checkList.find(
     item => item.id === currentCheckListId,
   )
@@ -56,14 +58,68 @@ function Checklist() {
   const handleShowModal = () => setShowModal(true)
   const handleHideModal = () => setShowModal(false)
 
-  const handleAddItem = (values: Omit<Check, "id">) => {
-    const id = steps.length + 1
-    const newStep = { ...values, id }
+  const handleAddItem = (values: Step) => {
+    console.log(values)
+    const isExist = steps.some(_step => _step?.id === values?.id)
+    let updatedSteps = [...steps]
+    if (isExist) {
+      const stepIndex = steps.findIndex(step => step.id === values.id)
 
-    console.log([newStep, ...steps])
-    setSteps([newStep, ...steps])
+      if (stepIndex !== -1) {
+        updatedSteps[stepIndex] = values
+      }
+    } else {
+      const id = steps.length + 1
+      const newStep = { ...values, id }
+
+      updatedSteps = [newStep, ...steps]
+    }
+
+    const cachedListItem = { ...currentItem, steps: updatedSteps }
+
+    // Save checklist to local storage
+    localStorage.setItem(
+      String(currentCheckListId),
+      JSON.stringify(cachedListItem),
+    )
+
+    setSteps(updatedSteps)
     handleHideModal()
   }
+
+  const handleDelete = (id: number) => {
+    const updatedSteps = steps.filter(step => step.id !== id)
+
+    const cachedListItem = { ...currentItem, steps: updatedSteps }
+
+    // Save checklist to local storage
+    localStorage.setItem(
+      String(currentCheckListId),
+      JSON.stringify(cachedListItem),
+    )
+
+    setSteps(updatedSteps)
+  }
+  const handleEdit = (id: number) => {
+    const stepToEdit = steps.find(step => step.id === id)
+
+    console.log({ stepToEdit })
+
+    if (stepToEdit) {
+      setStep(stepToEdit)
+      handleShowModal()
+    }
+  }
+
+  useEffect(() => {
+    const cachedItem = localStorage.getItem(currentCheckListId.toString())
+
+    if (cachedItem) {
+      const currentItem = JSON.parse(cachedItem)
+
+      setSteps(currentItem.steps)
+    }
+  }, [])
   return (
     <div className="w-25 p-4">
       <div className="fs-3"> Task Name</div>
@@ -90,25 +146,37 @@ function Checklist() {
             <div>
               <div> {currentItem.title} </div>
               {steps.map(step => (
-                <CheckListStep key={step.id} {...step} />
+                <CheckListStep
+                  key={step.id}
+                  {...step}
+                  onDelete={handleDelete}
+                  onEdit={handleEdit}
+                />
               ))}
             </div>
 
             <div
-              onClick={handleShowModal}
+              onClick={() => {
+                setStep(undefined)
+                handleShowModal()
+              }}
               className="my-2 d-flex flex-row align-items-center"
             >
               <Icons.AddNewItem />
-              <h6 className="text-primary my-4">Add new item</h6>
+              <h6 className="text-primary my-4 mx-2 ">Add new item</h6>
             </div>
           </Accordion.Body>
         </Accordion.Item>
       </Accordion>
-      <AddItemModal
-        isVisible={showModal}
-        onClose={handleHideModal}
-        onSubmit={handleAddItem}
-      />
+
+      {showModal && (
+        <AddItemModal
+          isVisible={showModal}
+          onClose={handleHideModal}
+          onSubmit={handleAddItem}
+          initialValues={step}
+        />
+      )}
     </div>
   )
 }

@@ -5,9 +5,9 @@ export type Status =
   | "completed"
   | "blocked"
 
-export interface Check {
-  id: number
+export interface Step {
+  id?: number
   title: string
   description: string
-  status: Status
+  status: Status | string
 }

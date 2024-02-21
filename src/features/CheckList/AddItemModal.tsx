@@ -2,12 +2,13 @@ import Button from "react-bootstrap/Button"
 import Modal from "react-bootstrap/Modal"
 import Form from "react-bootstrap/Form"
 import { useState } from "react"
-import type { Check } from "../../types"
+import type { Step } from "../../types"
 
 type AddItemModalProps = {
   isVisible: boolean
   onClose: () => void
-  onSubmit: (values: Omit<Check, "id">) => void
+  onSubmit: (values: Omit<Step, "id">) => void
+  initialValues?: Step
 }
 
 const Statuses = [
@@ -18,12 +19,20 @@ const Statuses = [
   { value: "blocked", label: "Blocked" },
 ]
 
-function AddItemModal({ isVisible, onClose, onSubmit }: AddItemModalProps) {
-  const [values, setValues] = useState<Omit<Check, "id">>({
+function AddItemModal({
+  isVisible,
+  onClose,
+  onSubmit,
+  initialValues,
+}: AddItemModalProps) {
+  const defaultValues: Step = {
     title: "",
     description: "",
     status: "idle",
-  })
+  }
+  const [values, setValues] = useState<Step>(
+    initialValues ? initialValues : defaultValues,
+  )
 
   const [errors, setErrors] = useState({
     title: "",
@@ -61,11 +70,8 @@ function AddItemModal({ isVisible, onClose, onSubmit }: AddItemModalProps) {
     const hasErrors = Object.values(_errors).some(Boolean)
 
     if (hasErrors) {
-      console.log("Form has error. stop")
       return setErrors(_errors)
     }
-
-    console.log("Update parent", { values })
 
     onSubmit(values)
     // Reset form
@@ -75,7 +81,7 @@ function AddItemModal({ isVisible, onClose, onSubmit }: AddItemModalProps) {
   return (
     <Modal show={isVisible} onHide={onClose}>
       <Modal.Header closeButton>
-        <Modal.Title>Add Item</Modal.Title>
+        <Modal.Title> {initialValues ? "Update" : "Add"} Item</Modal.Title>
       </Modal.Header>
       <Modal.Body>
         <Form>
@@ -83,6 +89,7 @@ function AddItemModal({ isVisible, onClose, onSubmit }: AddItemModalProps) {
             <Form.Label>Title</Form.Label>
             <Form.Control
               type="text"
+              value={values.title}
               placeholder="Install Light Bulb"
               onChange={handleChange}
               name="title"
@@ -98,6 +105,7 @@ function AddItemModal({ isVisible, onClose, onSubmit }: AddItemModalProps) {
               placeholder="Setup electric wires for dinning room"
               onChange={handleChange}
               name="description"
+              value={values.description}
               isInvalid={errors.description.length > 0}
               isValid={values.description.length > 3}
             />
@@ -106,7 +114,11 @@ function AddItemModal({ isVisible, onClose, onSubmit }: AddItemModalProps) {
           </Form.Group>
           <Form.Group className="mb-3">
             <Form.Label>Select status:</Form.Label>
-            <Form.Select onChange={handleChange} name="status">
+            <Form.Select
+              defaultValue={values.status}
+              onChange={handleChange}
+              name="status"
+            >
               {Statuses.map(status => (
                 <option value={status.value}> {status.label}</option>
               ))}
@@ -119,7 +131,7 @@ function AddItemModal({ isVisible, onClose, onSubmit }: AddItemModalProps) {
           Close
         </Button>
         <Button variant="primary" onClick={handleSubmit}>
-          Add item
+          {initialValues ? "Update" : "Add"} item
         </Button>
       </Modal.Footer>
     </Modal>
