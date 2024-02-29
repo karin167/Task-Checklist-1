@@ -2,8 +2,10 @@ import Accordion from "react-bootstrap/Accordion"
 import CheckListStep from "./CheckListStep"
 import { Icons } from "../../icons"
 import AddItemModal from "./AddItemModal"
-import { useEffect, useState } from "react"
+import { useContext, useEffect, useState } from "react"
 import type { Step } from "../../types"
+import { ThemeContext } from "../../App"
+import clsx from "clsx"
 
 const data = {
   checkList: [
@@ -47,6 +49,9 @@ function Checklist() {
   const [showModal, setShowModal] = useState(false)
   const currentCheckListId = 1
 
+  const { theme } = useContext(ThemeContext)
+
+  console.log({ theme })
   const [step, setStep] = useState<Step>()
 
   const currentItem = data.checkList.find(
@@ -122,7 +127,9 @@ function Checklist() {
   }, [])
   return (
     <div className="w-25 p-4">
-      <div className="fs-3"> Task Name</div>
+      <div className={clsx("fs-3", theme === "dark" && "text-white")}>
+        Task Name
+      </div>
       <div className="d-flex flex-row align-items-center">
         <div
           style={{
@@ -138,13 +145,21 @@ function Checklist() {
       <Accordion>
         <Accordion.Item eventKey="0">
           <Accordion.Header>
-            {" "}
             <div className="fs-5 fw-medium "> Checklist</div>
           </Accordion.Header>
 
-          <Accordion.Body>
+          <Accordion.Body
+            style={{ backgroundColor: theme === "light" ? "#fff" : "#000" }}
+          >
             <div>
-              <div> {currentItem.title} </div>
+              <div
+                className={clsx(
+                  { "text-white": theme === "dark" },
+                  { "text-dark": theme === "light" },
+                )}
+              >
+                {currentItem?.title || ""}{" "}
+              </div>
               {steps.map(step => (
                 <CheckListStep
                   key={step.id}

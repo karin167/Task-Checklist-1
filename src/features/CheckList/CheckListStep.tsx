@@ -2,6 +2,9 @@ import React from "react"
 import type { Step } from "../../types"
 import StatusIndicator from "./StatusIndicator"
 import { Icons } from "../../icons"
+import { ThemeContext } from "../../App"
+import { useContext } from "react"
+import clsx from "clsx"
 
 interface CheckListStepProps extends Step {
   onDelete: (id: number) => void
@@ -15,6 +18,8 @@ function CheckListStep({
   onDelete,
   onEdit,
 }: CheckListStepProps) {
+  const { theme } = useContext(ThemeContext)
+
   const iconSvg = {
     blocked: <Icons.Blocked />,
     completed: <Icons.Done />,
@@ -26,7 +31,7 @@ function CheckListStep({
     <div className="my-2 d-flex flex-row align-items-center justify-content-between ">
       <div className="d-flex flex-row align-items-center">
         {iconSvg[status]}
-        <div className="px-2">
+        <div className={clsx("px-2", theme === "dark" && "text-white")}>
           <div> {title}</div>
 
           <div className="d-flex flex-row align-items-center ">
