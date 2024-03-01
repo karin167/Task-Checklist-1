@@ -46,11 +46,10 @@ const data = {
 }
 
 function Checklist() {
-  const [showModal, setShowModal] = useState(false)
+  const [showModal, setShowModal] = useState<boolean>(false)
   const currentCheckListId = 1
 
   const { theme } = useContext(ThemeContext)
-
   console.log({ theme })
   const [step, setStep] = useState<Step>()
 
@@ -177,7 +176,10 @@ function Checklist() {
               }}
               className="my-2 d-flex flex-row align-items-center"
             >
-              <Icons.AddNewItem />
+              <Icons.AddNewItem
+                fill={theme === "light" ? "#000" : "#fff"}
+                stroke={theme === "light" ? "#000" : "#fff"}
+              />
               <h6 className="text-primary my-4 mx-2 ">Add new item</h6>
             </div>
           </Accordion.Body>

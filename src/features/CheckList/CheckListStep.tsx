@@ -44,11 +44,17 @@ function CheckListStep({
       </div>
       <div className="d-flex flex-row align-items-center ">
         <button className="btn btn-outline p-1" onClick={() => onEdit(id)}>
-          <Icons.Edit />
+          <Icons.Edit
+            viewBox={theme === "light" ? "#fff" : "#000"}
+            stroke={theme === "light" ? "#000" : "#fff"}
+          />
         </button>
 
         <button className="btn btn-outline p-1" onClick={() => onDelete(id)}>
-          <Icons.Bin />
+          <Icons.Bin
+            viewBox={theme === "light" ? "#fff" : "#000"}
+            stroke={theme === "light" ? "#000" : "#fff"}
+          />
         </button>
       </div>
     </div>

@@ -1,8 +1,14 @@
 import Button from "react-bootstrap/Button"
 import Modal from "react-bootstrap/Modal"
 import Form from "react-bootstrap/Form"
-import { useState } from "react"
+import type { ChangeEvent } from "react"
+import { useEffect, useState } from "react"
 import type { Step } from "../../types"
+import { useRef } from "react"
+type FormControlElement =
+  | HTMLInputElement
+  | HTMLTextAreaElement
+  | HTMLSelectElement
 
 type AddItemModalProps = {
   isVisible: boolean
@@ -33,13 +39,14 @@ function AddItemModal({
   const [values, setValues] = useState<Step>(
     initialValues ? initialValues : defaultValues,
   )
+  const inputRef = useRef<HTMLInputElement | null>(null)
 
   const [errors, setErrors] = useState({
     title: "",
     description: "",
   })
 
-  const handleChange = (e: React.FormEvent<HTMLInputElement>) => {
+  const handleChange = (e: ChangeEvent<FormControlElement>) => {
     const name = e.currentTarget.name
     const value = e.currentTarget.value
 
@@ -77,6 +84,12 @@ function AddItemModal({
     // Reset form
     setValues({ title: "", description: "", status: "idle" })
   }
+  useEffect(() => {
+    if (isVisible) {
+      console.log("FOCUSED", inputRef.current)
+      inputRef.current?.focus()
+    }
+  }, [isVisible])
 
   return (
     <Modal show={isVisible} onHide={onClose}>
@@ -87,7 +100,9 @@ function AddItemModal({
         <Form>
           <Form.Group className="mb-3" controlId="formBasicEmail">
             <Form.Label>Title</Form.Label>
+
             <Form.Control
+              ref={inputRef}
               type="text"
               value={values.title}
               placeholder="Install Light Bulb"
@@ -96,7 +111,7 @@ function AddItemModal({
               isInvalid={errors.title.length > 0}
               isValid={values.title.length > 3}
             />
-            <Form.Text className="text-danger"> {errors.title}</Form.Text>
+            <Form.Text className="text-danger">{errors.title}</Form.Text>
           </Form.Group>
           <Form.Group className="mb-3" controlId="formBasicEmail">
             <Form.Label>Description</Form.Label>
